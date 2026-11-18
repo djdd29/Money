@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>اكسب مع كل ضغطة</title>
+
+<style>
+
+*{box-sizing:border-box}
+
+body{
+
+margin:0;background:#080d18;color:white;
+
+font-family:Arial,sans-serif;text-align:center;
+
+min-height:100vh;display:flex;
+
+justify-content:center;align-items:center;padding:20px
+
+}
+
+.container{width:100%;max-width:420px}
+
+h1{font-size:28px}
+
+.subtitle{color:#9ca9bd}
+
+.card{
+
+background:#121c2d;border:1px solid #263750;
+
+border-radius:24px;padding:25px;margin-top:25px
+
+}
+
+.label{color:#9ca9bd;font-size:14px}
+
+.balance{font-size:39px;font-weight:bold;color:#39e69a;margin:17px 0}
+
+.click{
+
+width:205px;height:205px;border-radius:50%;
+
+border:8px solid #174b42;
+
+background:linear-gradient(145deg,#24e99a,#087b63);
+
+color:#061b15;font-size:27px;font-weight:bold;
+
+margin:30px auto;cursor:pointer;
+
+box-shadow:0 0 35px #13d99a44;
+
+transition:.1s
+
+}
+
+.click:active{transform:scale(.94)}
+
+.click:disabled{opacity:.4;cursor:not-allowed}
+
+.stats{display:flex;justify-content:space-around;gap:10px}
+
+.stat strong{display:block;font-size:23px;margin-top:12px}
+
+.reset{
+
+margin-top:25px;background:#26364d;color:white;
+
+border:0;padding:13px 25px;border-radius:12px;
+
+cursor:pointer
+
+}
+
+.note{font-size:12px;color:#8492a8;margin-top:20px}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>💰 اكسب مع كل ضغطة</h1>
+
+<p class="subtitle">اضغط واجمع رصيدك التجريبي</p>
+
+<div class="card">
+
+<div class="label">رصيدك الحالي</div>
+
+<div class="balance">
+
+<span id="balance">0.0000</span> ر.س
+
+</div>
+
+<div class="label">كل ضغطة = 0.0001 ريال</div>
+
+<button class="click" id="clickBtn">
+
+اضغط هنا<br>+0.0001
+
+</button>
+
+<div class="stats">
+
+<div class="stat">
+
+<span class="label">إجمالي الضغطات</span>
+
+<strong id="count">0</strong>
+
+</div>
+
+<div class="stat">
+
+<span class="label">الرصيد</span>
+
+<strong id="total">0.0000</strong>
+
+</div>
+
+</div>
+
+<button class="reset" id="resetBtn">تصفير الرصيد</button>
+
+<p class="note">الحماية: أكثر من 7 ضغطات خلال ثانية يؤدي إلى تصفير الرصيد.</p>
+
+</div>
+
+</div>
+
+<script>
+
+let clicks = Number(localStorage.getItem("clicks")) || 0;
+
+let timestamps = [];
+
+let locked = false;
+
+const balance = document.getElementById("balance");
+
+const count = document.getElementById("count");
+
+const total = document.getElementById("total");
+
+const clickBtn = document.getElementById("clickBtn");
+
+function update(){
+
+ const money = (clicks / 10000).toFixed(4);
+
+ balance.textContent = money;
+
+ total.textContent = money;
+
+ count.textContent = clicks.toLocaleString("en");
+
+ localStorage.setItem("clicks", clicks);
+
+}
+
+clickBtn.onclick = function(){
+
+ if(locked) return;
+
+ const now = Date.now();
+
+ timestamps = timestamps.filter(t => now - t < 1000);
+
+ timestamps.push(now);
+
+ if(timestamps.length > 7){
+
+   clicks = 0;
+
+   timestamps = [];
+
+   update();
+
+   locked = true;
+
+   clickBtn.disabled = true;
+
+   alert("🚫 تم اكتشاف ضغط سريع! تم تصفير رصيدك.");
+
+   setTimeout(() => {
+
+     locked = false;
+
+     clickBtn.disabled = false;
+
+   }, 3000);
+
+   return;
+
+ }
+
+ clicks++;
+
+ update();
+
+};
+
+document.getElementById("resetBtn").onclick = function(){
+
+ if(confirm("هل تريد تصفير رصيدك؟")){
+
+  clicks = 0;
+
+  timestamps = [];
+
+  update();
+
+ }
+
+};
+
+update();
+
+</script>
+
+</body>
+
+</html>
